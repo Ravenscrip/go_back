@@ -1,8 +1,7 @@
 import locale
 
 import flask
-from flask import make_response, jsonify, request
-from werkzeug.exceptions import abort
+from flask import make_response, jsonify, request, abort
 
 import kgs_api
 
@@ -22,7 +21,11 @@ def get_game():
     if player is None or game_id not in [0, 1]:
         abort(404)
 
-    game = kgs_api.get_game(player, game_id)
+    game = None
+    try:
+        game = kgs_api.get_game(player, game_id)
+    except IndexError:
+        abort(404)
 
     return jsonify(game)
 
@@ -34,6 +37,8 @@ def not_found(error):
 
 @app.after_request
 def add_cors_headers(response):
+    if response.status_code == 404:
+        return response
     r = request.referrer[:-1]
     response.headers.add('Access-Control-Allow-Origin', r)
     response.headers.add('Access-Control-Allow-Credentials', 'true')
