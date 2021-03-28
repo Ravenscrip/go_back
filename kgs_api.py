@@ -32,9 +32,46 @@ def get_game_list(player):
     return games_list
 
 
+def get_moves(game_record):
+    moves = game_record.nodes[1:]
+    moves_new = []
+    for move in moves:
+        d = {}
+        if 'B' in move.properties:
+            d['color'] = 'black'
+            c = move.properties['B'][0]
+            if c == '':
+                d['coords'] = 'pass'
+            else:
+                d['coords'] = [ord(c[0]) - ord('a') + 1, ord(c[1]) - ord('a') + 1]
+            d['time'] = ''
+            if 'BL' in move.properties:
+                time = round(float(move.properties['BL'][0]))
+                d['time'] += f'{time // 60}:{time % 60}'
+            if 'OB' in move.properties:
+                time = int(move.properties['OB'][0])
+                d['time'] += f'({time})'
+        else:
+            d['color'] = 'white'
+            c = move.properties['W'][0]
+            if c == '':
+                d['coords'] = 'pass'
+            else:
+                d['coords'] = [ord(c[0]) - ord('a') + 1, ord(c[1]) - ord('a') + 1]
+            d['time'] = ''
+            if 'WL' in move.properties:
+                time = round(float(move.properties['WL'][0]))
+                d['time'] += f'{time // 60}:{time % 60}'
+            if 'OW' in move.properties:
+                time = int(move.properties['OW'][0])
+                d['time'] += f' ({time})'
+        moves_new.append(d)
+    return moves_new
+
+
 def get_game(player, game_id):
     game_list = get_game_list(player)
-    game = game_list[game_id]
+    game = game_list[-1 - game_id]
     year, month, day = map(int, game['timestamp'].split('T')[0].split('-'))
     white = game['players']['white']['name']
     black = game['players']['black']['name']
@@ -55,9 +92,13 @@ def get_game(player, game_id):
     with urllib.request.urlopen(sgf_url) as response, open('game.sgf', 'wb') as out_file:
         shutil.copyfileobj(response, out_file)
 
-    with open('larc-HiraBot44.sgf') as f:
+    with open('game.sgf') as f:
         collection = sgf.parse(f.read())
 
-    # game['sgf'] = collection
+    game_record = collection[0]
+
+    game['rules'] = game_record.nodes[0].properties['RU']
+
+    game['moves'] = get_moves(game_record)
 
     return game
