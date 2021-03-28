@@ -97,7 +97,7 @@ def get_game(player, game_id):
 
     game_record = collection[0]
 
-    game['rules'] = game_record.nodes[0].properties['RU']
+    game['rules'] = game_record.nodes[0].properties['RU'][0]
 
     game['moves'] = get_moves(game_record)
 
