@@ -32,6 +32,19 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
+@app.after_request
+def add_cors_headers(response):
+    r = request.referrer[:-1]
+    response.headers.add('Access-Control-Allow-Origin', r)
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Headers', 'Cache-Control')
+    response.headers.add('Access-Control-Allow-Headers', 'X-Requested-With')
+    response.headers.add('Access-Control-Allow-Headers', 'Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+    return response
+
+
 if __name__ == '__main__':
     locale.setlocale(locale.LC_ALL, '')
     app.run('localhost', 8080, debug=True)
