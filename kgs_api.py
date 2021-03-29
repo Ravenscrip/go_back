@@ -119,7 +119,7 @@ def get_top_100_player():
                 'position': c[0].text,
                 'name': c[1].text,
                 'rank': c[2].text,
-                'urls': [f'game?player={c[1].text}&game_id=0', f'game?player={c[1].text}&game_id=1'],
+                'urls': [f'/api/game?player={c[1].text}&game_id=0', f'/api/game?player={c[1].text}&game_id=1'],
             }
             result.append(player)
     return result
