@@ -5,6 +5,7 @@ import urllib.request
 
 import requests
 import sgf
+from bs4 import BeautifulSoup
 
 KGS_URL = 'https://www.gokgs.com/json/access'
 
@@ -85,7 +86,7 @@ def get_game(player, game_id):
     sgf_url = f'https://files.gokgs.com/games/{year}/{month}/{day}/{white}-{black}'
 
     if 'revision' in game:
-        sgf_url += f"-{game['revision']}"
+        sgf_url += f"-{str(int(game['revision']) + 1)}"
 
     sgf_url += '.sgf'
 
@@ -102,3 +103,23 @@ def get_game(player, game_id):
     game['moves'] = get_moves(game_record)
 
     return game
+
+
+def get_top_100_player():
+    req = requests.get('https://gokgs.com/top100.jsp')
+    soup = BeautifulSoup(req.text, 'lxml')
+    tables = soup.find_all('table', attrs={'class': 'grid'})
+    result = []
+    for table in tables:
+        for child in table.children:
+            if child.text == 'PositionNameRank':
+                continue
+            c = list(child.children)
+            player = {
+                'position': c[0].text,
+                'name': c[1].text,
+                'rank': c[2].text,
+                'urls': [f'game?player={c[1].text}&game_id=0', f'game?player={c[1].text}&game_id=1'],
+            }
+            result.append(player)
+    return result

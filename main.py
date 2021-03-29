@@ -20,7 +20,6 @@ def get_game():
     game_id = request.args.get('game_id', default=-1, type=int)
     if player is None or game_id not in [0, 1]:
         abort(404)
-
     game = None
     try:
         game = kgs_api.get_game(player, game_id)
@@ -28,6 +27,13 @@ def get_game():
         abort(404)
 
     return jsonify(game)
+
+
+@app.route('/api/top', methods=['GET'])
+def get_top():
+    top_100 = kgs_api.get_top_100_player()
+
+    return jsonify(top_100)
 
 
 @app.errorhandler(404)
