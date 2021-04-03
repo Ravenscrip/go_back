@@ -1,4 +1,5 @@
 import locale
+from urllib.error import HTTPError
 
 import flask
 from flask import make_response, jsonify, request, abort
@@ -25,11 +26,13 @@ def get_game():
         game = kgs_api.get_game(player, game_id)
     except IndexError:
         abort(404)
+    except HTTPError:
+        abort(404)
 
     return jsonify(game)
 
 
-@app.route('/api/top', methods=['GET'])
+@app.route('/api/top/', methods=['GET'])
 def get_top():
     top_100 = kgs_api.get_top_100_player()
 
@@ -41,19 +44,19 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-@app.after_request
-def add_cors_headers(response):
-    if response.status_code == 404:
-        return response
-    r = request.referrer[:-1]
-    response.headers.add('Access-Control-Allow-Origin', r)
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-    response.headers.add('Access-Control-Allow-Headers', 'Cache-Control')
-    response.headers.add('Access-Control-Allow-Headers', 'X-Requested-With')
-    response.headers.add('Access-Control-Allow-Headers', 'Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
-    return response
+# @app.after_request
+# def add_cors_headers(response):
+#     if response.status_code == 404:
+#         return response
+#     r = request.referrer[:-1]
+#     response.headers.add('Access-Control-Allow-Origin', r)
+#     response.headers.add('Access-Control-Allow-Credentials', 'true')
+#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+#     response.headers.add('Access-Control-Allow-Headers', 'Cache-Control')
+#     response.headers.add('Access-Control-Allow-Headers', 'X-Requested-With')
+#     response.headers.add('Access-Control-Allow-Headers', 'Authorization')
+#     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE')
+#     return response
 
 
 if __name__ == '__main__':
