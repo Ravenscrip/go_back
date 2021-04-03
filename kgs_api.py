@@ -65,7 +65,7 @@ def get_moves(game_record):
                 d['time'] += f'{time // 60}:{time % 60}'
             if 'OW' in move.properties:
                 time = int(move.properties['OW'][0])
-                d['time'] += f' ({time})'
+                d['time'] += f'({time})'
         moves_new.append(d)
     return moves_new
 
